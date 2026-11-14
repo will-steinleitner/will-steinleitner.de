@@ -1,4 +1,4 @@
-# [will-steinleitner.de](https://will-steinleitner.de)
+# Personal Website
 
 Source code of my personal website [will-steinleitner.de](https://will-steinleitner.de): a small Go web server that renders HTML templates and serves static assets.
 
