@@ -1,62 +1,32 @@
 GOCMD=go
-APP_NAME=willserver
-BINARY_DIR=bin
-
-GOOS=linux
-GOARCH=amd64
-CGO_ENABLED=0
-LDFLAGS=-ldflags="-s -w"
-
-# Deploy settings
-SSH_KEY=/home/will/.ssh/id_hetzner
-SERVER=46.225.218.39
-USER=root
-REMOTE_PATH=/usr/local/bin
-REMOTE_DIR := willweb
-REMOTE_FULL_PATH := $(REMOTE_PATH)/$(REMOTE_DIR)
+BINARY_DIR=.
+BUILD_PKG=github.com/will-steinleitner/will-steinleitner.de/backend/internal/common/build
+VERSION ?= $(if $(APP_VERSION),$(APP_VERSION),$(shell git describe --tags --abbrev=0 2>/dev/null || echo development))
+GIT_HASH ?= $(if $(APP_GIT_HASH),$(APP_GIT_HASH),$(shell git rev-parse --short HEAD 2>/dev/null || echo unknown))
+BUILD_LDFLAGS=-ldflags "-X $(BUILD_PKG).Version=$(VERSION) -X $(BUILD_PKG).GitHash=$(GIT_HASH)"
 
 .PHONY: deps
-deps: ## Install and tidy Go dependencies
+deps: ## Install all Go dependencies
 	$(GOCMD) mod tidy
 
 .PHONY: clean
-clean: ## Clean build artifacts
+clean: ## Clean up all build artifacts
 	$(GOCMD) clean
-	rm -rf $(BINARY_DIR) coverage.out
-
-.PHONY: test
-test: ## Run all tests
-	$(GOCMD) test ./... -coverprofile=coverage.out
+	rm -f $(BINARY_DIR)/server $(BINARY_DIR)/server.exe
 
 .PHONY: build
-build: build-linux ## Build production binary
+build: build-server ## Build all
 
-.PHONY: build-local
-build-local: ## Build for local system
+.PHONY: build-server
+build-server: ## Build server application
 	mkdir -p $(BINARY_DIR)
-	$(GOCMD) build -o $(BINARY_DIR)/$(APP_NAME) ./cmd/server/
-
-.PHONY: build-linux
-build-linux: ## Build Linux production binary
-	mkdir -p $(BINARY_DIR)
-	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
-	$(GOCMD) build $(LDFLAGS) -o $(BINARY_DIR)/$(APP_NAME) ./cmd/server/
+	$(GOCMD) build $(BUILD_LDFLAGS) -o $(BINARY_DIR)/server ./cmd/server/
 
 .PHONY: deploy
-deploy: build-linux ## Build and copy to server using SSH key
-	ssh -i $(SSH_KEY) $(USER)@$(SERVER) "mkdir -p '$(REMOTE_FULL_PATH)'"
-
-	scp -i $(SSH_KEY) $(BINARY_DIR)/$(APP_NAME) \
-		$(USER)@$(SERVER):"$(REMOTE_FULL_PATH)/$(APP_NAME)"
-
-	scp -i $(SSH_KEY) -r cmd/server/config \
-		$(USER)@$(SERVER):"$(REMOTE_FULL_PATH)/"
-
-	scp -i $(SSH_KEY) -r ../web \
-		$(USER)@$(SERVER):"$(REMOTE_FULL_PATH)/"
-
+deploy: build-server ## Build and deploy to Hetzner
+	ssh hetzner "mkdir -p /root/projects/will-steinleitner.de"
+	scp $(BINARY_DIR)/server hetzner:/root/projects/will-steinleitner.de/server
 
 .PHONY: help
 help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

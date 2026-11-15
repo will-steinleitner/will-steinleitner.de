@@ -1,5 +1,3 @@
-module will-steinleitner.de
+module github.com/will-steinleitner/will-steinleitner.de
 
-go 1.22
-
-require gopkg.in/yaml.v3 v3.0.1
+go 1.27.0

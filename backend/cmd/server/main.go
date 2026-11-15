@@ -3,31 +3,51 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"text/tabwriter"
 	"time"
 
-	backend "will-steinleitner.de"
-	"will-steinleitner.de/internal/server"
+	"github.com/will-steinleitner/will-steinleitner.de/internal/common/build"
+	"github.com/will-steinleitner/will-steinleitner.de/internal/common/config"
+	"github.com/will-steinleitner/will-steinleitner.de/internal/web/server"
 )
+
+func banner(cfg config.Config) {
+	tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(tw)
+	fmt.Fprintln(tw, "  Version:\t"+build.Version)
+	fmt.Fprintln(tw, "  Git hash:\t"+build.GitHash)
+	fmt.Fprintln(tw, "  Address:\thttp://"+net.JoinHostPort(cfg.Host, cfg.Port))
+	fmt.Fprintln(tw)
+	_ = tw.Flush()
+}
 
 func run(
 	ctx context.Context,
-	app *backend.Application,
+	cfg config.Config,
 ) error {
-	log.Println("Starting server at port", app.GetConfig().Port)
-	handler := server.RegisterRoutes(
-		app.GetRenderer(),
-		app.GetMiddleware(),
-	)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	log.Println("Starting server at port", cfg.Port)
+
+	rootMux := http.NewServeMux()
+	server.AddRoute(rootMux, ctx, logger)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("<h1>Seite 2 is running</h1>"))
+	})
 
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(app.GetConfig().Host, app.GetConfig().Port),
-		Handler: handler,
+		Addr:         net.JoinHostPort(cfg.Host, cfg.Port),
+		Handler:      rootMux,
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
 	}
 
 	done := make(chan os.Signal, 1)
@@ -37,7 +57,6 @@ func run(
 
 		log.Println("Shutting down server...")
 
-		// don't use ctx as parent contex here: it is already canceled after <-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
@@ -51,6 +70,7 @@ func run(
 
 	if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Printf("ListenAndServe error: %v\n", err)
+		return err
 	}
 
 	<-done
@@ -60,7 +80,8 @@ func run(
 }
 
 func main() {
-	app := backend.NewApplication()
+	cfg := config.New()
+	banner(cfg)
 
 	ctx, cancel := signal.NotifyContext(
 		context.Background(),
@@ -69,7 +90,7 @@ func main() {
 	)
 	defer cancel()
 
-	if err := run(ctx, app); err != nil {
+	if err := run(ctx, cfg); err != nil {
 		os.Exit(1)
 	}
 	log.Println("Main Context", ctx.Err())

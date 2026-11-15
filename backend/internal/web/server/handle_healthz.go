@@ -1,10 +1,13 @@
-package handlers
+package server
 
-import "net/http"
+import (
+	"net/http"
+)
 
-func HandleHealthz() http.Handler {
+func handleHealthz() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNoContent)
-		})
+		},
+	)
 }
