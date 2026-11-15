@@ -25,7 +25,8 @@ build-server: ## Build server application
 .PHONY: deploy
 deploy: build-server ## Build and deploy to Hetzner
 	ssh hetzner "mkdir -p /root/projects/will-steinleitner.de"
-	scp $(BINARY_DIR)/server hetzner:/root/projects/will-steinleitner.de/server
+	scp $(BINARY_DIR)/server hetzner:/root/projects/will-steinleitner.de/server.new
+	ssh hetzner "mv /root/projects/will-steinleitner.de/server.new /root/projects/will-steinleitner.de/server"
 
 .PHONY: help
 help:
