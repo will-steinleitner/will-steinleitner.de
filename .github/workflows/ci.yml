@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [ master ]
-    tag: ["v*"]
+    tags: ["v*"]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -13,10 +13,16 @@ permissions:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     outputs:
       version: ${{ steps.version.outputs.version }}
 
     steps:
+      - uses: actions/checkout@v7
+
       - name: Detect version tag
         id: version
         shell: bash
