@@ -1,0 +1,33 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ .Title }} - Will Steinleitner</title>
+  <meta name="description" content="Personal website of Will Steinleitner." />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+
+<body>
+  <div class="shell">
+    <header class="site-header">
+      <a href="/" class="logo" {{ if eq .PageName "home" }}aria-current="page" {{ end }}>
+        will-steinleitner<span>.de</span>
+      </a>
+    </header>
+
+    <main class="content">
+      {{ template "page-body" . }}
+    </main>
+
+    <footer class="site-footer">
+      <span>&copy; Will Steinleitner</span>
+      <span class="muted">Built with Go</span>
+    </footer>
+  </div>
+</body>
+
+</html>
+{{ end }}

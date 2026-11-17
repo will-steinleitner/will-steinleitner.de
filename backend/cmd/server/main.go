@@ -16,7 +16,8 @@ import (
 
 	"github.com/will-steinleitner/will-steinleitner.de/internal/common/build"
 	"github.com/will-steinleitner/will-steinleitner.de/internal/common/config"
-	"github.com/will-steinleitner/will-steinleitner.de/internal/web/server"
+	"github.com/will-steinleitner/will-steinleitner.de/internal/server"
+	"github.com/will-steinleitner/will-steinleitner.de/internal/web"
 )
 
 func banner(cfg config.Config) {
@@ -37,11 +38,13 @@ func run(
 	log.Println("Starting server at port", cfg.Port)
 
 	rootMux := http.NewServeMux()
+	webMux := http.NewServeMux()
 	server.AddRoute(rootMux, ctx, logger)
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("<h1>Seite 2 is running</h1>"))
-	})
+	if err := web.AddRoute(webMux, ctx, logger); err != nil {
+		logger.Error("add web routes", "error", err)
+		return err
+	}
+	rootMux.Handle("/", webMux)
 
 	httpServer := &http.Server{
 		Addr:         net.JoinHostPort(cfg.Host, cfg.Port),
