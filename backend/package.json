@@ -3,9 +3,15 @@
   "private": true,
   "scripts": {
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "fmt:check": "oxfmt --check",
+    "build:css": "npx @tailwindcss/cli -i ./internal/web/assets/tailwind.css -o ./internal/web/assets/styles.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./internal/web/assets/tailwind.css -o ./internal/web/assets/styles.css --watch --minify"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.5"
   },
   "devDependencies": {
-    "oxfmt": "^0.79.0"
+    "oxfmt": "^0.79.0",
+    "tailwindcss": "^4.3.5"
   }
 }
