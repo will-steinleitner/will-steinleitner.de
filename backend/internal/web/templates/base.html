@@ -6,26 +6,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Title }} - Will Steinleitner</title>
     <meta name="description" content="Personal website of Will Steinleitner." />
-    <link rel="stylesheet" href="/assets/style.css" />
+    <link rel="stylesheet" href="/assets/styles.css" />
   </head>
 
-  <body>
-    <div class="shell">
-      <header class="site-header">
-        {{ if eq .PageName "home" }}
-        <a href="/" class="logo" aria-current="page"> will-steinleitner<span>.de</span> </a>
-        {{ else }}
-        <a href="/" class="logo"> will-steinleitner<span>.de</span> </a>
-        {{ end }}
-      </header>
+  <body class="flex min-h-screen flex-col bg-white font-sans text-gray-900 antialiased">
+    <header class="flex w-full items-center px-6 py-8 sm:px-8">
+      <a
+        href="/"
+        aria-current="{{ if eq .PageName `home` }}page{{ end }}"
+        class="group inline-flex items-center gap-2 font-mono text-xl font-bold tracking-tight text-gray-900"
+      >
+        <img
+          src="/assets/icons/command-line.svg"
+          width="32"
+          height="32"
+          class="size-8 shrink-0 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+          alt=""
+        />
+        <span
+          class="relative whitespace-nowrap after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:rounded-full after:bg-gradient-to-r after:from-sky-400 after:via-indigo-400 after:to-fuchsia-500 after:transition-transform after:duration-300 group-hover:after:scale-x-100"
+        >
+          will-steinleitner.de
+        </span>
+      </a>
+    </header>
 
-      <main class="content">{{ template "page-body" . }}</main>
+    <main class="flex w-full flex-1 flex-col px-6 sm:px-8">{{ template "page-body" . }}</main>
 
-      <footer class="site-footer">
-        <span>&copy; Will Steinleitner</span>
-        <span class="muted">Built with Go</span>
-      </footer>
-    </div>
+    <footer class="w-full border-t border-gray-100 bg-gray-50/60">
+      <div class="mx-auto flex max-w-6xl flex-col items-center px-6 py-14 text-center sm:px-8">
+        <h2 class="text-lg font-semibold text-gray-900">Contact <span class="text-gray-400">me</span></h2>
+        <p class="mt-2 max-w-sm text-sm leading-relaxed text-gray-500">
+          Questions, ideas or just want to say hi? Feel free to reach out.
+        </p>
+
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <a
+            href="mailto:w.steinleitner@icloud.com"
+            class="group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-gray-100 transition hover:-translate-y-0.5 hover:text-indigo-500 hover:ring-indigo-200"
+          >
+            <img
+              src="/assets/icons/envelope.svg"
+              width="16"
+              height="16"
+              class="size-4 shrink-0 opacity-60 transition-opacity group-hover:opacity-100"
+              alt=""
+            />
+            E-Mail
+          </a>
+          <a
+            href="https://discord.com/users/326802486130114581"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-gray-100 transition hover:-translate-y-0.5 hover:text-indigo-500 hover:ring-indigo-200"
+          >
+            <img
+              src="/assets/icons/chat-bubble-left-right.svg"
+              width="16"
+              height="16"
+              class="size-4 shrink-0 opacity-60 transition-opacity group-hover:opacity-100"
+              alt=""
+            />
+            Discord
+          </a>
+          <a
+            href="https://github.com/will-steinleitner"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-gray-100 transition hover:-translate-y-0.5 hover:text-indigo-500 hover:ring-indigo-200"
+          >
+            <img
+              src="/assets/icons/code-bracket.svg"
+              width="16"
+              height="16"
+              class="size-4 shrink-0 opacity-60 transition-opacity group-hover:opacity-100"
+              alt=""
+            />
+            GitHub
+          </a>
+        </div>
+      </div>
+
+      <div class="mx-auto max-w-6xl border-t border-gray-200 px-6 py-6 text-center text-xs text-gray-400 sm:px-8">
+        &copy; 2026 will-steinleitner.de, All rights reserved.
+      </div>
+      <div class="h-1 w-full bg-gradient-to-r from-sky-400 via-indigo-400 to-fuchsia-500"></div>
+    </footer>
   </body>
 </html>
 {{ end }}
